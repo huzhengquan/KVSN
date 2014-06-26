@@ -12,7 +12,6 @@ k2 : v2
 k3:
   v31
   v32
-:k3
 ```
 
 clj-kvsn 是一个kvsn的clojure实现。
@@ -23,7 +22,7 @@ clj-kvsn 是一个kvsn的clojure实现。
 [Clojars](http://clojars.org/huzhengquan/clj-kvsn):
 
 ```clojure
-[huzhengquan/clj-kvsn "0.1.0"]
+[huzhengquan/clj-kvsn "0.1.1"]
 ```
 
 ## Usage

@@ -1,17 +1,17 @@
-(ns clj-kvsn)
+(ns clj-kvsn
+  (:use [clojure.string :only [join split split-lines blank? trim]]))
 
 (defn- make-m-kv
   [k v]
-  (str k ":\n"
-    (clojure.string/join
+  (str k " :\n"
+    (join
       \newline
       (map #(str \tab %)
-        (clojure.string/split-lines v)))
-    "\n:" k))
+        (split-lines v)))))
 
 (defn write-str
   [x]
-  (clojure.string/join "\n"
+  (join "\n"
     (map
       #(let [k (name (first %))
              v (str (last %))]
@@ -23,22 +23,27 @@
 
 (defn read-str
   [x]
-  (apply hash-map
+  (first
   (reduce
-    (fn [r line]
-      (cond
-        (= \tab (first line))
-          (assoc r (dec (count r)) (str (last r) (if (empty? (last r)) "" \newline) (subs line 1)))
-        (clojure.string/blank? line) r
-        :else
-          (let [[k v] (clojure.string/split line #":" 2)]
-             (if (clojure.string/blank? k)
-               r
-               (conj r (keyword k) v)))))
-    []
-    (clojure.string/split-lines x))))
+    (fn [[r pk] line]
+      (let [[k v] (split line #":" 2)
+            kisb? (blank? k)]
+        (cond
+          (and (not kisb?) (not= \tab (first k)))
+            (let [kk (keyword (trim k))
+                  vv (trim v)]
+              [(assoc r kk vv) kk])
+          (and pk (= \tab (first line)))
+            (let [vv (subs line 1)]
+              [(merge-with #(if (= %1 "") %2 (str %1 \newline %2))
+                           r
+                           {pk vv}) pk])
+          :else [r pk])))
+    [{} nil]
+    (split-lines x))))
 
 (defn foo
   "I don't do a whole lot."
   [x]
+  (println (write-str (read-str "a :1\nb: 2\nc :\n\t111\n\t222\nd :\n e:3")))
   (println x))
